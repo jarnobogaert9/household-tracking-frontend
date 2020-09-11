@@ -4,11 +4,11 @@
     <b-message v-if="errors.length != 0" type="is-warning" aria-close-label="Close message">
       <p v-for="error in errors" :key="error">{{error}}</p>
     </b-message>
-    <b-message v-if="successMsg" type="is-success">
+    <b-message auto-close :duration="500" v-if="successMsg" type="is-success">
       <p>{{successMsg}}</p>
     </b-message>
     <b-field label="Title" label-position="">
-      <b-input v-model="form.title" placeholder="Enter title ex. aardappelen schillen"></b-input>
+      <b-input @keypress.enter.native="add()" v-model="form.title" placeholder="Enter title ex. aardappelen schillen"></b-input>
     </b-field>
     <!-- <b-field label="Color" label-position="">
       <b-input v-model="form.color" placeholder="Enter hex code ex. #232323"></b-input>
@@ -20,8 +20,8 @@
             <b-table-column field="Type" label="Type" v-slot="props">
                 {{ props.row.title }}
             </b-table-column>
-            <b-table-column field="Action" label="Action">
-              <b-button type="is-danger">Remove</b-button>
+            <b-table-column field="Action" label="Action" v-slot="props">
+              <b-button @click="remove(props.row._id)" type="is-danger">Remove</b-button>
             </b-table-column>
         </b-table>
     </section>
@@ -47,8 +47,8 @@ export default {
   },
   methods: {
     async add() {
-      this.errors = [];
       this.successMsg = null;
+      this.errors = [];
       const valid = this.validateFields();
       if (valid) {
         const data = {
@@ -96,6 +96,21 @@ export default {
       const json = await response.json();
       this.types = json;
       this.isLoading = false;
+    },
+    async remove(id) {
+      this.successMsg = null;
+      const response = await fetch(`http://localhost:3333/api/v1/types/${id}`, {
+        method: 'DELETE'
+      });
+      const json = await response.json();
+      if (response.status == 200) {
+        this.successMsg = json.msg;
+        this.fetchTypes();
+      } else {
+        alert('Something went wrong');
+        console.log(response);
+        console.log(json);
+      }
     }
   },
 };
