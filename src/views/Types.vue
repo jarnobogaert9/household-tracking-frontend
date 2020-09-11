@@ -16,7 +16,7 @@
     <b-button @click="add" type="is-primary" expanded>Add</b-button>
     <h2 class="mt-6 title is-5">All types</h2>
     <section>
-        <b-table :data="types">
+        <b-table :data="types" :loading="isLoading">
             <b-table-column field="Type" label="Type" v-slot="props">
                 {{ props.row.title }}
             </b-table-column>
@@ -25,8 +25,6 @@
             </b-table-column>
         </b-table>
     </section>
-
-
   </div>
 </template>
 
@@ -40,7 +38,8 @@ export default {
         color: null,
       },
       successMsg: null,
-      types: []
+      types: [],
+      isLoading: true
     }
   },
   created () {
@@ -96,6 +95,7 @@ export default {
       });
       const json = await response.json();
       this.types = json;
+      this.isLoading = false;
     }
   },
 };
