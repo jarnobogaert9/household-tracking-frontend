@@ -1,6 +1,6 @@
 <template>
 <div>
-    <b-navbar type="is-white">
+    <b-navbar class="mb-5" type="is-white">
         <template slot="brand">
             <b-navbar-item tag="router-link" :to="{ path: '/' }">
                 <img
@@ -10,13 +10,13 @@
             </b-navbar-item>
         </template>
         <template slot="start">
-            <b-navbar-item href="#">
+            <b-navbar-item tag="router-link" :to="{name: 'Home'}">
                 Home
             </b-navbar-item>
-            <b-navbar-item href="#">
+            <b-navbar-item tag="router-link" :to="{name: 'Types'}">
                 Types
             </b-navbar-item>
-            <b-navbar-item href="#">
+            <b-navbar-item tag="router-link" :to="{name: 'Users'}">
                 Users
             </b-navbar-item>
         </template>
