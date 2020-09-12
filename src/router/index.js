@@ -1,10 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import VueMoment from 'vue-moment'
 import Home from '../views/Home.vue'
 import Types from '../views/Types.vue'
 import Users from '../views/Users.vue'
 
 Vue.use(VueRouter)
+Vue.use(VueMoment)
 
 const routes = [
   {
