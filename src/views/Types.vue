@@ -22,6 +22,7 @@
             </b-table-column>
             <b-table-column field="Action" label="Action" v-slot="props">
               <b-button @click="remove(props.row._id)" type="is-danger">Remove</b-button>
+              <!-- <b-button @click="remove(props.row._id)" type="is-danger">Remove</b-button> -->
             </b-table-column>
         </b-table>
     </section>
@@ -29,6 +30,7 @@
 </template>
 
 <script>
+import { createType, getTypes } from '../services/TypeService';
 export default {
   data() {
     return {
@@ -56,15 +58,7 @@ export default {
           color: this.form.color ? this.form.color : null
         };
         console.log(data);
-        const response = await fetch(`http://localhost:3333/api/v1/types`, {
-          method: 'POST',
-          mode: 'cors',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data )
-        });
-        const json = await response.json();
+        const [json, response] = await createType({data});
         if (response.status == 201) {
           this.successMsg = "Successfully created new type."
           this.clearFields();
@@ -87,14 +81,8 @@ export default {
       }
     },
     async fetchTypes() {
-      const response = await fetch('http://localhost:3333/api/v1/types', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      });
-      const json = await response.json();
-      this.types = json;
+      const [results] = await getTypes();
+      this.types = results;
       this.isLoading = false;
     },
     async remove(id) {
