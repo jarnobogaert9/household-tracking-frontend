@@ -25,7 +25,7 @@
 
     <h2 class="mt-6 title is-5">Tasks</h2>
     <div class="containe">
-      <b-loading :is-full-page="fals" v-model="isLoading"></b-loading>
+      <b-loading :is-full-page="true" v-model="isLoading"></b-loading>
       <div v-if="!isLoading">
         <div v-for="task in tasks" :key="task._id" class="card mb-2">
           <div class="card-content">
@@ -55,6 +55,9 @@
 // @ is an alias to /src
 // import HelloWorld from '@/components/HelloWorld.vue'
 // import moment from 'vue-moment'
+import { getTypes } from "../services/TypeService";
+import { getUsers } from "../services/UserService";
+import { createTask, getTasks } from "../services/TaskService";
 
 export default {
   name: "Home",
@@ -81,25 +84,28 @@ export default {
       this.errors = [];
       const valid = this.validateFields();
       if (valid) {
-        console.log("Valid");
-        const response = await fetch("http://localhost:3333/api/v1/tasks", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            typeId: this.form.type,
-            userId: this.form.user,
-          }),
-        });
-        const json = await response.json();
-        if (response.status == 201) {
-          this.fetchTasks();
-          this.clearFields();
-        } else {
-          console.log(response);
-          console.log(json);
-          alert("Something went wrong.");
+        let data = {
+          typeId: this.form.type,
+          userId: this.form.user,
+        }
+
+        try {
+          const [json, response] = await createTask({data});
+
+          if (response.status == 201) {
+            this.fetchTasks();
+            this.clearFields();
+          } else {
+            console.log(response);
+            console.log(json);
+            // alert("Something went wrong while creating task.");
+          }
+        } catch (err) {
+          this.$buefy.toast.open({
+            duration: 5000,
+            message: `Something went wrong while calling <u>task service</u>. <b>Please reload page.</b>`,
+            type: "is-danger",
+          });
         }
       }
     },
@@ -114,35 +120,44 @@ export default {
       }
     },
     async fetchTypes() {
-      const response = await fetch("http://localhost:3333/api/v1/types", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const json = await response.json();
-      this.types = json;
+      try {
+        const [results] = await getTypes();
+        this.types = results;
+      } catch (err) {
+        console.log(err);
+        this.$buefy.toast.open({
+          duration: 5000,
+          message: `Something went wrong while calling <u>type service</u>. <b>Please reload page.</b>`,
+          type: "is-danger",
+        });
+      }
     },
     async fetchUsers() {
-      const response = await fetch("http://localhost:3333/api/v1/users", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const json = await response.json();
-      this.users = json;
+      try {
+        const [results] = await getUsers();
+        this.users = results;
+      } catch (err) {
+        console.log(err);
+        this.$buefy.toast.open({
+          duration: 5000,
+          message: `Something went wrong while calling <u>user service</u>. <b>Please reload page.</b>`,
+          type: "is-danger",
+        });
+      }
     },
     async fetchTasks() {
-      const response = await fetch("http://localhost:3333/api/v1/tasks", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const json = await response.json();
-      this.tasks = json;
-      this.isLoading = false;
+      try {
+        const [results] = await getTasks();
+        this.tasks = results;
+        this.isLoading = false;
+      } catch (err) {
+        console.log(err);
+        this.$buefy.toast.open({
+          duration: 5000,
+          message: `Something went wrong while calling <u>task service</u>. <b>Please reload page.</b>`,
+          type: "is-danger",
+        });
+      }
     },
   },
 };
